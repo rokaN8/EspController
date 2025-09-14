@@ -233,8 +233,7 @@ php -S localhost:8000
 
 1. **Open Developer Tools**: Press `F12` or right-click → Inspect
 2. **Go to Console Tab**: Look for error messages
-3. **Test BLE Support**: Click "Test BLE Connection" button first
-4. **Common Console Messages**:
+3. **Common Console Messages**:
    ```javascript
    // Good - BLE is working
    "Starting BLE connection..."

@@ -29,7 +29,6 @@ class ESP32Controller {
         this.statusElement = document.getElementById('status');
         this.connectBtn = document.getElementById('connectBtn');
         this.disconnectBtn = document.getElementById('disconnectBtn');
-        this.testBtn = document.getElementById('testBtn');
         
         // LED Grid elements
         this.ledGrid = document.getElementById('ledGrid');
@@ -40,7 +39,6 @@ class ESP32Controller {
     attachEventListeners() {
         this.connectBtn.addEventListener('click', () => this.connect());
         this.disconnectBtn.addEventListener('click', () => this.disconnect());
-        this.testBtn.addEventListener('click', () => this.testBLEConnection());
         
         // LED Grid event listeners
         this.sendGridBtn.addEventListener('click', () => this.sendLEDConfiguration());
@@ -175,59 +173,6 @@ class ESP32Controller {
     }
 
 
-    async testBLEConnection() {
-        try {
-            console.log('=== Testing Basic BLE Functionality ===');
-            
-            // Check for HTTPS/localhost requirement
-            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-                throw new Error('Web Bluetooth requires HTTPS or localhost. Current URL: ' + location.href);
-            }
-
-            if (!navigator.bluetooth) {
-                throw new Error('Web Bluetooth is not supported in this browser');
-            }
-
-            this.updateStatus('Testing BLE connection...', 'connecting');
-            console.log('Attempting to connect to any BLE device...');
-
-            // Try to connect to any available BLE device for testing
-            const device = await navigator.bluetooth.requestDevice({
-                acceptAllDevices: true,
-                optionalServices: ['battery_service', 'device_information']
-            });
-
-            console.log('Test device found:', device.name || 'Unnamed device');
-            console.log('Device ID:', device.id);
-            
-            // Try to connect
-            const server = await device.gatt.connect();
-            console.log('GATT server connected successfully');
-            
-            // Get services
-            const services = await server.getPrimaryServices();
-            console.log('Available services:', services.length);
-            services.forEach((service, index) => {
-                console.log(`Service ${index + 1}: ${service.uuid}`);
-            });
-
-            await device.gatt.disconnect();
-            
-            this.updateStatus('BLE test successful!', 'connected');
-            setTimeout(() => {
-                if (!this.isConnected) {
-                    this.updateStatus('Disconnected', 'disconnected');
-                }
-            }, 3000);
-
-            console.log('=== BLE Test Completed Successfully ===');
-            console.log('Your browser supports Web Bluetooth. The issue is likely with the ESP32 service configuration.');
-            
-        } catch (error) {
-            console.error('BLE test failed:', error);
-            this.updateStatus(`BLE test failed: ${error.message}`, 'disconnected');
-        }
-    }
 
     // LED Grid Management Methods
     createLEDGrid() {
