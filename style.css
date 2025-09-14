@@ -1,0 +1,315 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.status {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status.connected {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status.disconnected {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status.connecting {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.connection-section,
+.control-section,
+.led-grid-section {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.connection-section {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.control-section {
+    text-align: center;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.control-group label {
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 120px;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: #545b62;
+}
+
+
+.info-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.info-box {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.info-box h3 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.info-box ol,
+.info-box ul {
+    margin-left: 20px;
+}
+
+.info-box li {
+    margin-bottom: 8px;
+    color: #555;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .connection-section {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .info-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    .led-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+    
+    .led-cell {
+        width: 50px;
+        height: 50px;
+        font-size: 10px;
+    }
+}
+
+/* LED Grid Styles */
+.led-grid-section {
+    text-align: center;
+}
+
+.led-grid-section h3 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+.led-grid-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.led-grid-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.led-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #dee2e6;
+}
+
+.led-cell {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #6c757d;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    color: #495057;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.led-cell:hover {
+    border-color: #007bff;
+    transform: scale(1.05);
+}
+
+.led-cell.off {
+    background-color: #e9ecef;
+    color: #6c757d;
+}
+
+.led-cell.red {
+    background-color: #dc3545;
+    color: white;
+    border-color: #c82333;
+}
+
+.led-cell.green {
+    background-color: #28a745;
+    color: white;
+    border-color: #1e7e34;
+}
+
+.led-cell.blue {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+}
+
+.grid-legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid #6c757d;
+}
+
+.legend-color.off {
+    background-color: #e9ecef;
+}
+
+.legend-color.red {
+    background-color: #dc3545;
+}
+
+.legend-color.green {
+    background-color: #28a745;
+}
+
+.legend-color.blue {
+    background-color: #007bff;
+}

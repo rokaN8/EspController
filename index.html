@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 LED Grid Controller</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ESP32 LED Grid Controller</h1>
+            <div class="status" id="status">Disconnected</div>
+        </header>
+
+        <main>
+            <div class="connection-section">
+                <button id="connectBtn" class="btn btn-primary">Connect to ESP32</button>
+                <button id="disconnectBtn" class="btn btn-secondary" disabled>Disconnect</button>
+                <button id="testBtn" class="btn btn-secondary">Test BLE Connection</button>
+            </div>
+
+            <div class="led-grid-section">
+                <h3>WS2811 LED Grid Control (30 LEDs)</h3>
+                <div class="led-grid-controls">
+                    <button id="sendGridBtn" class="btn btn-primary" disabled>Send Configuration</button>
+                    <button id="clearGridBtn" class="btn btn-secondary">Clear All</button>
+                </div>
+                <div class="led-grid-container">
+                    <div id="ledGrid" class="led-grid"></div>
+                    <div class="grid-legend">
+                        <div class="legend-item">
+                            <div class="legend-color off"></div>
+                            <span>Off</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color red"></div>
+                            <span>Red</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color green"></div>
+                            <span>Green</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color blue"></div>
+                            <span>Blue</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-box">
+                    <h3>Instructions:</h3>
+                    <ol>
+                        <li>Click "Connect to ESP32" to scan for devices</li>
+                        <li>Select "ESP32-LED-Controller" from the list</li>
+                        <li>Click LED grid squares to cycle colors</li>
+                        <li>Click "Send Configuration" to update LED strip</li>
+                        <li>Use "Clear All" to reset all LEDs to off</li>
+                    </ol>
+                </div>
+                
+                <div class="info-box">
+                    <h3>Requirements:</h3>
+                    <ul>
+                        <li>Chrome or Edge browser</li>
+                        <li>HTTPS or localhost</li>
+                        <li>ESP32 with FastLED library</li>
+                        <li>WS2811 LED strip (30 LEDs)</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
