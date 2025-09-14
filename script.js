@@ -98,22 +98,8 @@ class ESP32Controller {
                 });
                 connectionAttempted = true;
             } catch (serviceError) {
-                console.warn('Service filter failed:', serviceError);
-                console.log('Trying fallback method: device name filter...');
-                
-                // Fallback method: Filter by device name
-                try {
-                    this.device = await navigator.bluetooth.requestDevice({
-                        filters: [
-                            { name: 'ESP32-LED-Controller' }
-                        ],
-                        optionalServices: [this.serviceUUID]
-                    });
-                    connectionAttempted = true;
-                } catch (nameError) {
-                    console.warn('Name filter also failed:', nameError);
-                    throw new Error('Could not find ESP32. Make sure it\'s powered on and in range. Service error: ' + serviceError.message);
-                }
+                console.warn('Name filter also failed:', nameError);
+                throw new Error('Could not find ESP32. Make sure it\'s powered on and in range. Service error: ' + serviceError.message);
             }
 
             console.log('Device selected:', this.device.name);

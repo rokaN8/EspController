@@ -1,28 +1,43 @@
-# ESP32 Web Bluetooth Controller
+# ESP32 Web Bluetooth LED Grid Controller
 
-A simple web application that uses Web Bluetooth API to connect to an ESP32 and send ON/OFF commands. Works on both desktop and mobile devices.
+A web application that uses Web Bluetooth API to connect to an ESP32 and control a 30-LED WS2811 addressable LED strip in a 5x6 grid pattern. Features an interactive web interface for setting individual LED colors (Off, Red, Green, Blue) and real-time updates via JSON commands. Works on both desktop and mobile devices.
 
 ## Project Structure
 
 ```
-webui/
-├── index.html          # Web Bluetooth UI
-├── style.css           # Minimal responsive styling  
-├── script.js           # Web Bluetooth API logic
-└── README.md           # This file
-
-board/
-└── board.ino           # ESP32 Arduino code
+EspController/
+├── index.html              # Web Bluetooth LED Grid UI
+├── style.css               # Responsive styling with LED grid
+├── script.js               # Web Bluetooth API and LED control logic
+├── README.md               # This file
+└── board_led_grid/
+    └── board_led_grid.ino  # ESP32 Arduino code for WS2811 LED control
 ```
 
 ## Features
 
 - **Offline Web UI** - No server required, works completely offline
 - **Device Pairing** - Scan and connect to ESP32 via Web Bluetooth
-- **Simple Control** - Single ON/OFF toggle button
+- **LED Grid Control** - Interactive 5x6 grid interface for 30 addressable LEDs
+- **Color Selection** - Click-to-cycle through Off, Red, Green, and Blue states
+- **Real-time Updates** - Send LED configurations via JSON commands
+- **Snake Pattern Addressing** - Proper LED indexing for physical strip layout
 - **Responsive Design** - Works on desktop and mobile browsers
 - **Connection Status** - Visual indicators for connection state
 - **Auto-reconnection** - ESP32 restarts advertising after disconnect
+
+## Screenshots
+
+### Web Interface
+![Web Interface](screenshots/web-interface.png)
+*Interactive LED grid controller showing the 5x6 grid pattern with color selection and connection status*
+
+### Hardware Setup
+![Hardware Front View](screenshots/hardware-front.png)
+*Front view of the LED grid showing the 5x6 arrangement of WS2811 LEDs*
+
+![Hardware Back View](screenshots/hardware-back.png)
+*Back view showing ESP32 connections and wiring to the LED strip*
 
 ## Requirements
 
@@ -34,7 +49,11 @@ board/
 ### ESP32
 - **Board**: ESP32 development board (any variant)
 - **Arduino IDE**: Version 1.8.x or 2.x
-- **Libraries**: ESP32 BLE Arduino library (included with ESP32 board package)
+- **Libraries**:
+  - ESP32 BLE Arduino library (included with ESP32 board package)
+  - FastLED library (for WS2811 LED control)
+  - ArduinoJson library (for command parsing)
+- **Hardware**: WS2811 addressable LED strip (30 LEDs)
 
 ## Setup Instructions
 
@@ -50,16 +69,22 @@ board/
    - Go to `Tools > Board > Boards Manager`
    - Search for "ESP32" and install the package
 
-2. **Upload Code**:
-   - Open `board/board.ino` in Arduino IDE
+2. **Install Required Libraries**:
+   - Go to `Tools > Manage Libraries`
+   - Install "FastLED" by Daniel Garcia
+   - Install "ArduinoJson" by Benoit Blanchon
+
+3. **Upload Code**:
+   - Open `board_led_grid/board_led_grid.ino` in Arduino IDE
    - Select your ESP32 board: `Tools > Board > ESP32 Arduino > [Your Board]`
    - Select correct port: `Tools > Port > [Your ESP32 Port]`
    - Click "Upload" button
    - Open Serial Monitor (115200 baud) to see connection status
 
-3. **Verify Operation**:
-   - Serial Monitor should show: "Device is now discoverable as 'ESP32-Controller'"
-   - Built-in LED should blink slowly (waiting for connection)
+4. **Verify Operation**:
+   - Serial Monitor should show: "[BLE] Device discoverable as 'ESP32-LED-Controller'"
+   - LED strip should be initialized (all LEDs off)
+   - Check serial output for successful BLE advertising
 
 ### 2. Web UI Setup
 
@@ -107,13 +132,15 @@ npx serve . -p 8000
 
 2. **Control LED Grid**:
    - Click grid squares to cycle colors: Off → Red → Green → Blue
-   - Click "Send Configuration" to update LED strip
+   - Click "Send Configuration" to update physical LED strip
    - Use "Clear All" to reset all LEDs to off
+   - Grid follows snake pattern addressing (1-30) for proper LED mapping
 
 ## Pin Configuration
 
 ### Default Configuration
-- **LED Pin**: GPIO 2 (built-in LED on most ESP32 boards)
+- **WS2811 LED Strip Pin**: GPIO 4 (configurable)
+- **LED Count**: 30 LEDs in 5x6 grid pattern
 
 ### Common ESP32 Board Variants
 
@@ -126,19 +153,29 @@ npx serve . -p 8000
 | ESP32-S3 | GPIO 48 | Change LED_PIN in code |
 
 ### Custom Pin Configuration
-To use a different pin, modify this line in `board.ino`:
+To use a different pin, modify this line in `board_led_grid.ino`:
 ```cpp
-#define LED_PIN 2  // Change to your desired pin number
+#define WS2811_PIN 4  // Change to your desired pin number
 ```
+
+### LED Strip Wiring
+- **Data Pin**: Connect LED strip data input to GPIO 4
+- **Power**: Connect LED strip VCC to 5V external power supply
+- **Ground**: Connect LED strip GND to both ESP32 GND and power supply GND
+- **Current**: Ensure adequate power supply (30 LEDs × 60mA = ~1.8A max)
 
 ## Library Requirements
 
 ### ESP32 (Arduino IDE)
-The following libraries are automatically included with the ESP32 board package:
+**Included with ESP32 board package:**
 - `BLEDevice.h` - Core BLE functionality
 - `BLEServer.h` - BLE server implementation
 - `BLEUtils.h` - BLE utilities
 - `BLE2902.h` - BLE descriptor support
+
+**Additional libraries required:**
+- `FastLED.h` - WS2811 LED strip control
+- `ArduinoJson.h` - JSON command parsing
 
 ### Web UI
 No additional libraries required - uses native Web APIs:
@@ -294,8 +331,9 @@ Replace the LED with:
 ### BLE Configuration
 - **Service UUID**: `12345678-1234-1234-1234-123456789abc`
 - **Characteristic UUID**: `87654321-4321-4321-4321-cba987654321`
-- **Device Name**: `ESP32-Controller`
-- **Commands**: `"1"` (ON), `"0"` (OFF)
+- **Device Name**: `ESP32-LED-Controller`
+- **Commands**: JSON format `{"type":"led_grid","data":[0,1,2,3,...]}`
+- **Color Values**: `0=Off, 1=Red, 2=Green, 3=Blue`
 
 ### Browser Compatibility
 - Chrome: Full support

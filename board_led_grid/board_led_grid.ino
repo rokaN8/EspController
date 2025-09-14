@@ -47,14 +47,14 @@ CRGB colorMap[4] = {
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       deviceConnected = true;
-      Serial.println("✓ Device connected");
+      Serial.println("[OK] Device connected");
       Serial.print("Connected clients: ");
       Serial.println(pServer->getConnectedCount());
     };
 
     void onDisconnect(BLEServer* pServer) {
       deviceConnected = false;
-      Serial.println("✗ Device disconnected");
+      Serial.println("[INFO] Device disconnected");
       Serial.print("Connected clients: ");
       Serial.println(pServer->getConnectedCount());
     }
@@ -66,7 +66,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
       String rxValue = pCharacteristic->getValue();
 
       if (rxValue.length() > 0) {
-        Serial.print("📨 Received command: '");
+        Serial.print("[RX] Received command: '");
         Serial.print(rxValue.c_str());
         Serial.print("' (");
         Serial.print(rxValue.length());
@@ -76,7 +76,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
         if (rxValue[0] == '{') {
           handleLEDGridCommand(rxValue);
         } else {
-          Serial.print("❓ Unknown command format: ");
+          Serial.print("[WARN] Unknown command format: ");
           Serial.println(rxValue.c_str());
         }
       }
@@ -88,7 +88,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
       DeserializationError error = deserializeJson(doc, jsonCommand);
       
       if (error) {
-        Serial.print("❌ JSON parsing failed: ");
+        Serial.print("[ERROR] JSON parsing failed: ");
         Serial.println(error.c_str());
         return;
       }
@@ -99,7 +99,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
         JsonArray ledData = doc["data"];
         
         if (ledData.size() != NUM_LEDS) {
-          Serial.print("❌ Invalid LED data size: ");
+          Serial.print("[ERROR] Invalid LED data size: ");
           Serial.print(ledData.size());
           Serial.print(" (expected ");
           Serial.print(NUM_LEDS);
@@ -107,14 +107,14 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           return;
         }
 
-        Serial.println("🌈 Processing LED grid configuration...");
+        Serial.println("[PROC] Processing LED grid configuration...");
         
         // Update LED strip state and colors
         for (int i = 0; i < NUM_LEDS; i++) {
           uint8_t colorValue = ledData[i];
           
           if (colorValue > 3) {
-            Serial.print("❌ Invalid color value at LED ");
+            Serial.print("[ERROR] Invalid color value at LED ");
             Serial.print(i + 1);
             Serial.print(": ");
             Serial.println(colorValue);
@@ -134,14 +134,14 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           if (ledStripState[i] != 0) onCount++;
         }
         
-        Serial.print("✨ LED strip updated: ");
+        Serial.print("[OK] LED strip updated: ");
         Serial.print(onCount);
         Serial.print(" LEDs ON, ");
         Serial.print(NUM_LEDS - onCount);
         Serial.println(" LEDs OFF");
         
         // Debug: Print first few LED states
-        Serial.print("🔍 First 10 LEDs: ");
+        Serial.print("[DEBUG] First 10 LEDs: ");
         for (int i = 0; i < min(10, NUM_LEDS); i++) {
           Serial.print(ledStripState[i]);
           if (i < min(9, NUM_LEDS - 1)) Serial.print(",");
@@ -149,7 +149,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
         Serial.println();
         
       } else {
-        Serial.print("❓ Unknown command type: ");
+        Serial.print("[WARN] Unknown command type: ");
         Serial.println(commandType);
       }
     }
@@ -162,7 +162,7 @@ void setup() {
   // Initialize serial communication
   Serial.begin(115200);
   Serial.println();
-  Serial.println("🚀 ESP32 LED Grid Controller Starting...");
+  Serial.println("[INIT] ESP32 LED Grid Controller Starting...");
   Serial.println("=========================================");
 
 
@@ -177,27 +177,27 @@ void setup() {
   }
   FastLED.show();
   
-  Serial.println("🌈 WS2811 LED strip initialized:");
+  Serial.println("[INIT] WS2811 LED strip initialized:");
   Serial.println("   - Pin: GPIO " + String(WS2811_PIN));
   Serial.println("   - LEDs: " + String(NUM_LEDS));
   Serial.println("   - Brightness: 50%");
 
   // Create the BLE Device
   BLEDevice::init(deviceName.c_str());
-  Serial.println("📡 BLE Device initialized as: " + deviceName);
+  Serial.println("[BLE] Device initialized as: " + deviceName);
 
   // Create the BLE Server
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
-  Serial.println("🖥️  BLE Server created");
+  Serial.println("[BLE] Server created");
 
   // Create the main BLE Service
   pService = pServer->createService(SERVICE_UUID);
-  Serial.println("🔧 Main service created: " + String(SERVICE_UUID));
+  Serial.println("[BLE] Main service created: " + String(SERVICE_UUID));
 
   // Create Device Information Service
   pDeviceInfoService = pServer->createService(DEVICE_INFO_SERVICE_UUID);
-  Serial.println("🔧 Device Info service created: " + String(DEVICE_INFO_SERVICE_UUID));
+  Serial.println("[BLE] Device Info service created: " + String(DEVICE_INFO_SERVICE_UUID));
 
   // Create Device Name characteristic
   pDeviceNameChar = pDeviceInfoService->createCharacteristic(
@@ -205,7 +205,7 @@ void setup() {
                       BLECharacteristic::PROPERTY_READ
                     );
   pDeviceNameChar->setValue(deviceName.c_str());
-  Serial.println("📝 Device Name characteristic created");
+  Serial.println("[BLE] Device Name characteristic created");
 
   // Create the main characteristic for receiving commands
   pCharacteristic = pService->createCharacteristic(
@@ -218,12 +218,12 @@ void setup() {
   // Set the callback for characteristic writes
   pCharacteristic->setCallbacks(new MyCallbacks());
   pCharacteristic->addDescriptor(new BLE2902());
-  Serial.println("📝 Main characteristic created: " + String(CHARACTERISTIC_UUID));
+  Serial.println("[BLE] Main characteristic created: " + String(CHARACTERISTIC_UUID));
 
   // Start services
   pDeviceInfoService->start();
   pService->start();
-  Serial.println("🎯 Services started");
+  Serial.println("[BLE] Services started");
 
   // Configure advertising
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
@@ -245,15 +245,15 @@ void setup() {
   // Start advertising
   BLEDevice::startAdvertising();
   
-  Serial.println("📻 BLE Advertising started");
-  Serial.println("🔍 Device discoverable as: '" + deviceName + "'");
-  Serial.println("🆔 Service UUID: " + String(SERVICE_UUID));
-  Serial.println("🆔 Characteristic UUID: " + String(CHARACTERISTIC_UUID));
-  Serial.println("⏳ Waiting for client connection...");
+  Serial.println("[BLE] Advertising started");
+  Serial.println("[BLE] Device discoverable as: '" + deviceName + "'");
+  Serial.println("[INFO] Service UUID: " + String(SERVICE_UUID));
+  Serial.println("[INFO] Characteristic UUID: " + String(CHARACTERISTIC_UUID));
+  Serial.println("[INFO] Waiting for client connection...");
   Serial.println("=========================================");
   
   Serial.println();
-  Serial.println("📋 Command Support:");
+  Serial.println("[INFO] Command Support:");
   Serial.println("   JSON: {\"type\":\"led_grid\",\"data\":[0,1,2,3,...]}");
   Serial.println("   Colors: 0=Off, 1=Red, 2=Green, 3=Blue");
   Serial.println();
@@ -264,14 +264,14 @@ void loop() {
   if (!deviceConnected && oldDeviceConnected) {
     delay(500);
     pServer->startAdvertising();
-    Serial.println("🔄 Restarting advertising after disconnect...");
+    Serial.println("[BLE] Restarting advertising after disconnect...");
     oldDeviceConnected = deviceConnected;
   }
   
   // Handle new connection
   if (deviceConnected && !oldDeviceConnected) {
-    Serial.println("🎉 Client connected successfully!");
-    Serial.println("📱 Ready to receive LED Grid JSON commands");
+    Serial.println("[OK] Client connected successfully!");
+    Serial.println("[INFO] Ready to receive LED Grid JSON commands");
     oldDeviceConnected = deviceConnected;
   }
 
