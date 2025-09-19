@@ -18,6 +18,10 @@ class ESP32Controller {
         this.ledStates = new Array(30).fill(0);
         this.colorNames = ['off', 'red', 'green', 'blue'];
         this.colorValues = [0, 1, 2, 3];
+
+        // Disco mode state
+        this.discoModeActive = false;
+        this.discoInterval = null;
         
         this.initializeElements();
         this.attachEventListeners();
@@ -34,6 +38,8 @@ class ESP32Controller {
         this.ledGrid = document.getElementById('ledGrid');
         this.sendGridBtn = document.getElementById('sendGridBtn');
         this.clearGridBtn = document.getElementById('clearGridBtn');
+        this.testLEDsBtn = document.getElementById('testLEDsBtn');
+        this.discoBtn = document.getElementById('discoBtn');
     }
 
     attachEventListeners() {
@@ -43,6 +49,8 @@ class ESP32Controller {
         // LED Grid event listeners
         this.sendGridBtn.addEventListener('click', () => this.sendLEDConfiguration());
         this.clearGridBtn.addEventListener('click', () => this.clearLEDGrid());
+        this.testLEDsBtn.addEventListener('click', () => this.testLEDs());
+        this.discoBtn.addEventListener('click', () => this.toggleDiscoMode());
     }
 
     updateStatus(message, type = 'disconnected') {
@@ -53,8 +61,10 @@ class ESP32Controller {
     updateUI() {
         this.connectBtn.disabled = this.isConnected;
         this.disconnectBtn.disabled = !this.isConnected;
-        this.sendGridBtn.disabled = !this.isConnected;
-        
+        this.sendGridBtn.disabled = !this.isConnected || this.discoModeActive;
+        this.testLEDsBtn.disabled = !this.isConnected || this.discoModeActive;
+        this.discoBtn.disabled = !this.isConnected;
+
         if (this.isConnected) {
             this.updateStatus('Connected', 'connected');
         } else {
@@ -163,6 +173,11 @@ class ESP32Controller {
     }
 
     handleDisconnection() {
+        // Stop disco mode if active
+        if (this.discoModeActive) {
+            this.stopDiscoMode();
+        }
+
         this.device = null;
         this.server = null;
         this.service = null;
@@ -271,6 +286,187 @@ class ESP32Controller {
         } catch (error) {
             console.error('Failed to send LED configuration:', error);
             this.updateStatus('LED command failed', 'disconnected');
+        }
+    }
+
+    async testLEDs() {
+        if (!this.isConnected || !this.characteristic) {
+            console.error('Not connected to device');
+            return;
+        }
+
+        // Disable controls during test
+        this.testLEDsBtn.disabled = true;
+        this.sendGridBtn.disabled = true;
+        this.clearGridBtn.disabled = true;
+
+        const originalText = this.testLEDsBtn.textContent;
+        this.testLEDsBtn.textContent = 'Testing...';
+
+        console.log('Starting LED test sequence...');
+
+        try {
+            // Test each LED sequentially
+            for (let i = 0; i < 30; i++) {
+                // Create LED state array with only current LED set to red
+                const testLedStates = new Array(30).fill(0);
+                testLedStates[i] = 1; // Set current LED to red
+
+                // Create and send command
+                const ledCommand = {
+                    type: 'led_grid',
+                    data: testLedStates
+                };
+
+                const commandString = JSON.stringify(ledCommand);
+                const encoder = new TextEncoder();
+                const data = encoder.encode(commandString);
+
+                await this.characteristic.writeValue(data);
+                console.log(`LED ${i + 1} turned on (red)`);
+
+                // Wait 1 second before next LED
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            // Turn off all LEDs at the end
+            const allOffCommand = {
+                type: 'led_grid',
+                data: new Array(30).fill(0)
+            };
+
+            const commandString = JSON.stringify(allOffCommand);
+            const encoder = new TextEncoder();
+            const data = encoder.encode(commandString);
+            await this.characteristic.writeValue(data);
+
+            console.log('LED test sequence completed - all LEDs turned off');
+
+        } catch (error) {
+            console.error('LED test failed:', error);
+            this.updateStatus('LED test failed', 'disconnected');
+        } finally {
+            // Re-enable controls
+            this.testLEDsBtn.textContent = originalText;
+            this.testLEDsBtn.disabled = false;
+            this.sendGridBtn.disabled = false;
+            this.clearGridBtn.disabled = false;
+        }
+    }
+
+    // Helper functions for disco mode
+    getRandomLEDs(count) {
+        const selectedLEDs = [];
+        const availableLEDs = Array.from({length: 30}, (_, i) => i);
+
+        for (let i = 0; i < count && availableLEDs.length > 0; i++) {
+            const randomIndex = Math.floor(Math.random() * availableLEDs.length);
+            selectedLEDs.push(availableLEDs.splice(randomIndex, 1)[0]);
+        }
+
+        return selectedLEDs;
+    }
+
+    getRandomColor() {
+        // Return random color value: 1=Red, 2=Green, 3=Blue
+        return Math.floor(Math.random() * 3) + 1;
+    }
+
+    async startDiscoMode() {
+        if (!this.isConnected || !this.characteristic) {
+            console.error('Not connected to device');
+            return;
+        }
+
+        this.discoModeActive = true;
+        this.discoBtn.textContent = 'Stop Disco';
+
+        // Disable other LED controls during disco mode
+        this.sendGridBtn.disabled = true;
+        this.clearGridBtn.disabled = true;
+        this.testLEDsBtn.disabled = true;
+
+        console.log('Starting disco mode...');
+
+        const discoStep = async () => {
+            if (!this.discoModeActive) return;
+
+            try {
+                // Create LED state array (all off)
+                const discoLedStates = new Array(30).fill(0);
+
+                // Get 5 random LEDs and assign random colors
+                const randomLEDs = this.getRandomLEDs(5);
+                randomLEDs.forEach(ledIndex => {
+                    discoLedStates[ledIndex] = this.getRandomColor();
+                });
+
+                // Create and send command
+                const ledCommand = {
+                    type: 'led_grid',
+                    data: discoLedStates
+                };
+
+                const commandString = JSON.stringify(ledCommand);
+                const encoder = new TextEncoder();
+                const data = encoder.encode(commandString);
+
+                await this.characteristic.writeValue(data);
+                console.log('Disco pattern sent:', randomLEDs);
+
+            } catch (error) {
+                console.error('Disco mode error:', error);
+                this.stopDiscoMode();
+            }
+        };
+
+        // Run first pattern immediately, then every 2 seconds
+        await discoStep();
+        this.discoInterval = setInterval(discoStep, 2000);
+    }
+
+    async stopDiscoMode() {
+        this.discoModeActive = false;
+
+        if (this.discoInterval) {
+            clearInterval(this.discoInterval);
+            this.discoInterval = null;
+        }
+
+        this.discoBtn.textContent = 'Disco Mode';
+
+        // Re-enable controls
+        if (this.isConnected) {
+            this.sendGridBtn.disabled = false;
+            this.clearGridBtn.disabled = false;
+            this.testLEDsBtn.disabled = false;
+        }
+
+        // Turn off all LEDs
+        if (this.isConnected && this.characteristic) {
+            try {
+                const allOffCommand = {
+                    type: 'led_grid',
+                    data: new Array(30).fill(0)
+                };
+
+                const commandString = JSON.stringify(allOffCommand);
+                const encoder = new TextEncoder();
+                const data = encoder.encode(commandString);
+                await this.characteristic.writeValue(data);
+
+                console.log('Disco mode stopped - all LEDs turned off');
+            } catch (error) {
+                console.error('Error turning off LEDs:', error);
+            }
+        }
+    }
+
+    toggleDiscoMode() {
+        if (this.discoModeActive) {
+            this.stopDiscoMode();
+        } else {
+            this.startDiscoMode();
         }
     }
 }
