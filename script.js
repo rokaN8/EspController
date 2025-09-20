@@ -321,6 +321,14 @@ class ESP32Controller {
                 const testLedStates = new Array(30).fill(0);
                 testLedStates[i] = 1; // Set current LED to red
 
+                // Update internal LED state to match test pattern
+                this.ledStates = [...testLedStates];
+
+                // Update UI grid visuals to show current test LED
+                for (let j = 0; j < 30; j++) {
+                    this.updateLEDVisual(j);
+                }
+
                 // Create and send command
                 const ledCommand = {
                     type: 'led_grid',
@@ -348,6 +356,12 @@ class ESP32Controller {
             const encoder = new TextEncoder();
             const data = encoder.encode(commandString);
             await this.characteristic.writeValue(data);
+
+            // Update internal LED state and UI grid to reflect all LEDs off
+            this.ledStates.fill(0);
+            for (let i = 0; i < 30; i++) {
+                this.updateLEDVisual(i);
+            }
 
             console.log('LED test sequence completed - all LEDs turned off');
 
@@ -410,6 +424,14 @@ class ESP32Controller {
                     discoLedStates[ledIndex] = this.getRandomColor();
                 });
 
+                // Update internal LED state to match disco pattern
+                this.ledStates = [...discoLedStates];
+
+                // Update UI grid visuals to reflect disco pattern
+                for (let i = 0; i < 30; i++) {
+                    this.updateLEDVisual(i);
+                }
+
                 // Create and send command
                 const ledCommand = {
                     type: 'led_grid',
@@ -463,6 +485,12 @@ class ESP32Controller {
                 const encoder = new TextEncoder();
                 const data = encoder.encode(commandString);
                 await this.characteristic.writeValue(data);
+
+                // Update internal LED state and UI grid to reflect all LEDs off
+                this.ledStates.fill(0);
+                for (let i = 0; i < 30; i++) {
+                    this.updateLEDVisual(i);
+                }
 
                 console.log('Disco mode stopped - all LEDs turned off');
             } catch (error) {
