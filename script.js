@@ -191,14 +191,14 @@ class ESP32Controller {
 
     // LED Grid Management Methods
     createLEDGrid() {
-        // Create the LED addressing pattern: snake pattern as specified
+        // Create the LED addressing pattern: new specified pattern
         const addressMapping = [
-            30, 29, 28, 27, 26,  // Row 6 (top)
-            21, 22, 23, 24, 25,  // Row 5
-            20, 19, 18, 17, 16,  // Row 4
-            11, 12, 13, 14, 15,  // Row 3
-            10,  9,  8,  7,  6,  // Row 2
-             1,  2,  3,  4,  5   // Row 1 (bottom)
+            26, 27, 28, 29, 30,  // Row 6 (top)
+            25, 24, 23, 22, 21,  // Row 5
+            16, 17, 18, 19, 20,  // Row 4
+            15, 14, 13, 12, 11,  // Row 3
+             6,  7,  8,  9, 10,  // Row 2
+             5,  4,  3,  2,  1   // Row 1 (bottom)
         ];
 
         this.ledGrid.innerHTML = '';
