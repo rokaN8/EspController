@@ -40,6 +40,10 @@ class ESP32Controller {
         this.clearGridBtn = document.getElementById('clearGridBtn');
         this.testLEDsBtn = document.getElementById('testLEDsBtn');
         this.discoBtn = document.getElementById('discoBtn');
+
+        // Brightness control elements
+        this.brightnessSlider = document.getElementById('brightnessSlider');
+        this.brightnessValue = document.getElementById('brightnessValue');
     }
 
     attachEventListeners() {
@@ -51,6 +55,10 @@ class ESP32Controller {
         this.clearGridBtn.addEventListener('click', () => this.clearLEDGrid());
         this.testLEDsBtn.addEventListener('click', () => this.testLEDs());
         this.discoBtn.addEventListener('click', () => this.toggleDiscoMode());
+
+        // Brightness control event listeners
+        this.brightnessSlider.addEventListener('input', () => this.updateBrightnessDisplay());
+        this.brightnessSlider.addEventListener('change', () => this.sendBrightnessCommand());
     }
 
     updateStatus(message, type = 'disconnected') {
@@ -64,6 +72,7 @@ class ESP32Controller {
         this.sendGridBtn.disabled = !this.isConnected || this.discoModeActive;
         this.testLEDsBtn.disabled = !this.isConnected || this.discoModeActive;
         this.discoBtn.disabled = !this.isConnected;
+        this.brightnessSlider.disabled = !this.isConnected;
 
         if (this.isConnected) {
             this.updateStatus('Connected', 'connected');
@@ -467,6 +476,45 @@ class ESP32Controller {
             this.stopDiscoMode();
         } else {
             this.startDiscoMode();
+        }
+    }
+
+    updateBrightnessDisplay() {
+        const brightnessPercent = this.brightnessSlider.value;
+        this.brightnessValue.textContent = `${brightnessPercent}%`;
+    }
+
+    async sendBrightnessCommand() {
+        if (!this.isConnected || !this.characteristic) {
+            console.error('Not connected to device');
+            return;
+        }
+
+        try {
+            const brightnessPercent = parseInt(this.brightnessSlider.value);
+            const brightnessValue = Math.round((brightnessPercent / 100) * 255);
+
+            // Create brightness command
+            const brightnessCommand = {
+                type: 'brightness',
+                value: brightnessValue
+            };
+
+            const commandString = JSON.stringify(brightnessCommand);
+            console.log('Sending brightness command:', commandString);
+
+            // Convert to Uint8Array
+            const encoder = new TextEncoder();
+            const data = encoder.encode(commandString);
+
+            // Send via BLE
+            await this.characteristic.writeValue(data);
+
+            console.log(`Brightness set to ${brightnessPercent}% (${brightnessValue}/255)`);
+
+        } catch (error) {
+            console.error('Failed to send brightness command:', error);
+            this.updateStatus('Brightness command failed', 'disconnected');
         }
     }
 }

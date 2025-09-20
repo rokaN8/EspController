@@ -35,6 +35,9 @@ String deviceName = "ESP32-LED-Controller";
 // LED strip state (0=Off, 1=Red, 2=Green, 3=Blue)
 uint8_t ledStripState[NUM_LEDS];
 
+// Brightness control (0-255, default 50%)
+uint8_t currentBrightness = 128;
+
 // Color mapping
 CRGB colorMap[4] = {
   CRGB::Black,   // 0 - Off
@@ -147,7 +150,27 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           if (i < min(9, NUM_LEDS - 1)) Serial.print(",");
         }
         Serial.println();
-        
+
+      } else if (commandType == "brightness") {
+        uint8_t brightnessValue = doc["value"];
+
+        if (brightnessValue > 255) {
+          Serial.print("[ERROR] Invalid brightness value: ");
+          Serial.println(brightnessValue);
+          return;
+        }
+
+        currentBrightness = brightnessValue;
+        FastLED.setBrightness(currentBrightness);
+        FastLED.show(); // Apply brightness change to current LED state
+
+        int brightnessPercent = (currentBrightness * 100) / 255;
+        Serial.print("[OK] Brightness set to ");
+        Serial.print(brightnessPercent);
+        Serial.print("% (");
+        Serial.print(currentBrightness);
+        Serial.println("/255)");
+
       } else {
         Serial.print("[WARN] Unknown command type: ");
         Serial.println(commandType);
@@ -168,7 +191,7 @@ void setup() {
 
   // Initialize FastLED
   FastLED.addLeds<WS2811, WS2811_PIN, GRB>(leds, NUM_LEDS);
-  FastLED.setBrightness(128); // Set to 50% brightness
+  FastLED.setBrightness(currentBrightness); // Set to default brightness
   
   // Initialize LED strip state (all off)
   for (int i = 0; i < NUM_LEDS; i++) {
@@ -180,7 +203,7 @@ void setup() {
   Serial.println("[INIT] WS2811 LED strip initialized:");
   Serial.println("   - Pin: GPIO " + String(WS2811_PIN));
   Serial.println("   - LEDs: " + String(NUM_LEDS));
-  Serial.println("   - Brightness: 50%");
+  Serial.println("   - Brightness: " + String((currentBrightness * 100) / 255) + "%");
 
   // Create the BLE Device
   BLEDevice::init(deviceName.c_str());
@@ -254,7 +277,8 @@ void setup() {
   
   Serial.println();
   Serial.println("[INFO] Command Support:");
-  Serial.println("   JSON: {\"type\":\"led_grid\",\"data\":[0,1,2,3,...]}");
+  Serial.println("   LED Grid: {\"type\":\"led_grid\",\"data\":[0,1,2,3,...]}");
+  Serial.println("   Brightness: {\"type\":\"brightness\",\"value\":0-255}");
   Serial.println("   Colors: 0=Off, 1=Red, 2=Green, 3=Blue");
   Serial.println();
 }
