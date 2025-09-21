@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup & Help - ESP32 LED Grid Controller</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page-container">
+        <section class="hero-section">
+            <h1>Setup & Installation Guide</h1>
+            <p>Complete instructions for setting up your ESP32 LED Grid Controller, from hardware assembly to web interface configuration.</p>
+        </section>
+
+        <section class="content-section">
+            <h2>Requirements</h2>
+
+            <h3>Hardware</h3>
+            <ul>
+                <li>ESP32 development board (any variant with BLE support)</li>
+                <li>WS2811 addressable LED strip (30 LEDs)</li>
+                <li>5V external power supply (~1.8A capacity)</li>
+                <li>Jumper wires for connections</li>
+                <li>Breadboard (optional, for prototyping)</li>
+            </ul>
+
+            <h3>Software</h3>
+            <ul>
+                <li>Arduino IDE (version 1.8.x or 2.x)</li>
+                <li>Chrome or Edge browser with Web Bluetooth support</li>
+                <li>Python (for local HTTP server) or alternative web server</li>
+            </ul>
+        </section>
+
+        <section class="content-section">
+            <h2>ESP32 Setup</h2>
+
+            <ol class="step-list">
+                <li>
+                    <strong>Install ESP32 Board Package</strong>
+                    <ul>
+                        <li>Open Arduino IDE</li>
+                        <li>Go to <code>File > Preferences</code></li>
+                        <li>Add this URL to "Additional Board Manager URLs":</li>
+                    </ul>
+                    <div class="code-block">https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json</div>
+                    <ul>
+                        <li>Go to <code>Tools > Board > Boards Manager</code></li>
+                        <li>Search for "ESP32" and install the package</li>
+                    </ul>
+                </li>
+
+                <li>
+                    <strong>Install Required Libraries</strong>
+                    <p>Go to <code>Tools > Manage Libraries</code> and install:</p>
+                    <ul>
+                        <li><strong>FastLED</strong> by Daniel Garcia</li>
+                        <li><strong>ArduinoJson</strong> by Benoit Blanchon</li>
+                    </ul>
+                </li>
+
+                <li>
+                    <strong>Hardware Connections</strong>
+                    <ul>
+                        <li><strong>LED Data Pin:</strong> Connect to GPIO 4 on ESP32</li>
+                        <li><strong>LED Power (VCC):</strong> Connect to 5V external power supply</li>
+                        <li><strong>LED Ground (GND):</strong> Connect to both ESP32 GND and power supply GND</li>
+                    </ul>
+                    <div class="warning-box">
+                        <strong>Important:</strong> Do not power 30 LEDs from ESP32's 3.3V pin. Use external 5V power supply rated for at least 1.8A.
+                    </div>
+                </li>
+
+                <li>
+                    <strong>Upload Arduino Code</strong>
+                    <ul>
+                        <li>Open <code>board_led_grid/board_led_grid.ino</code> in Arduino IDE</li>
+                        <li>Select your ESP32 board: <code>Tools > Board > ESP32 Arduino > [Your Board]</code></li>
+                        <li>Select correct port: <code>Tools > Port > [Your ESP32 Port]</code></li>
+                        <li>Click "Upload" button</li>
+                        <li>Open Serial Monitor (115200 baud) to verify operation</li>
+                    </ul>
+                </li>
+
+                <li>
+                    <strong>Verify ESP32 Operation</strong>
+                    <p>Serial Monitor should show:</p>
+                    <div class="code-block">[BLE] Device discoverable as 'ESP32-LED-Controller'
+[INIT] WS2811 LED strip initialized
+[INFO] Waiting for client connection...</div>
+                </li>
+            </ol>
+        </section>
+
+        <section class="content-section">
+            <h2>Web Interface Setup</h2>
+
+            <div class="warning-box">
+                <strong>Why Local Server Required:</strong> Web Bluetooth only works over HTTPS or localhost. Opening HTML files directly uses file:// protocol which doesn't work.
+            </div>
+
+            <h3>Option 1: Python HTTP Server (Recommended)</h3>
+            <ol class="step-list">
+                <li>
+                    <strong>Navigate to Project Directory</strong>
+                    <div class="code-block">cd /path/to/EspController</div>
+                </li>
+
+                <li>
+                    <strong>Start Python Server</strong>
+                    <div class="code-block"># Python 3 (most common)
+python -m http.server 8000
+
+# Python 2 (if needed)
+python2 -m SimpleHTTPServer 8000
+
+# Windows with py launcher
+py -m http.server 8000</div>
+                </li>
+
+                <li>
+                    <strong>Access Web Application</strong>
+                    <ul>
+                        <li><strong>Local testing:</strong> <code>http://localhost:8000</code></li>
+                        <li><strong>Mobile testing:</strong> <code>http://YOUR_COMPUTER_IP:8000</code></li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3>Option 2: Alternative Servers</h3>
+            <div class="code-block"># Node.js (if installed)
+npx serve . -p 8000
+npx http-server -p 8000
+
+# PHP (if installed)
+php -S localhost:8000
+
+# VS Code Live Server Extension
+# Right-click index.html -> "Open with Live Server"</div>
+        </section>
+
+        <section class="content-section">
+            <h2>Pin Configuration</h2>
+
+            <h3>Default Configuration</h3>
+            <ul>
+                <li><strong>LED Data Pin:</strong> GPIO 4 (configurable)</li>
+                <li><strong>LED Count:</strong> 30 LEDs in 5×6 grid</li>
+                <li><strong>Brightness:</strong> 50% (configurable via web interface)</li>
+            </ul>
+
+            <h3>Common ESP32 Board Variants</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                <tr style="background-color: #f8f9fa;">
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Board Type</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Recommended Pin</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Notes</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">ESP32 DevKit</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">GPIO 4</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">Most common, default</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">ESP32-WROOM-32</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">GPIO 4</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">Standard variant</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">ESP32-S2</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">GPIO 18</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">Change WS2811_PIN in code</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">ESP32-C3</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">GPIO 8</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">Change WS2811_PIN in code</td>
+                </tr>
+            </table>
+
+            <h3>Custom Pin Configuration</h3>
+            <p>To use a different pin, modify this line in <code>board_led_grid.ino</code>:</p>
+            <div class="code-block">#define WS2811_PIN 4  // Change to your desired pin number</div>
+        </section>
+
+        <section class="content-section">
+            <h2>Troubleshooting</h2>
+
+            <h3>Web Interface Issues</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>"Web Bluetooth not supported"</h4>
+                    <ul>
+                        <li>Use Chrome or Edge browser</li>
+                        <li>Update to latest browser version</li>
+                        <li>On mobile, enable Web Bluetooth in browser flags</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h4>"Connection failed"</h4>
+                    <ul>
+                        <li>Ensure ESP32 is powered on and running code</li>
+                        <li>Check Serial Monitor for "Device is discoverable" message</li>
+                        <li>Try refreshing web page and reconnecting</li>
+                        <li>Clear browser cache if previously paired</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h4>Device not appearing in scan</h4>
+                    <ul>
+                        <li>Verify Arduino code uploaded successfully</li>
+                        <li>Check Serial Monitor for error messages</li>
+                        <li>Ensure ESP32 not connected to another device</li>
+                        <li>Try restarting ESP32</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h4>Frequent disconnections</h4>
+                    <ul>
+                        <li>Keep devices within close range (&lt; 10 meters)</li>
+                        <li>Avoid interference from other BLE devices</li>
+                        <li>Check ESP32 power supply stability</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>ESP32 Issues</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>Code won't compile</h4>
+                    <ul>
+                        <li>Ensure ESP32 board package is installed</li>
+                        <li>Select correct board type in Tools > Board</li>
+                        <li>Install latest ESP32 board package version</li>
+                        <li>Verify FastLED and ArduinoJson libraries installed</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h4>LEDs not responding</h4>
+                    <ul>
+                        <li>Check wiring connections (data, power, ground)</li>
+                        <li>Verify WS2811_PIN matches your wiring</li>
+                        <li>Ensure adequate power supply (5V, 1.8A)</li>
+                        <li>Monitor Serial output for received commands</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h4>BLE not working</h4>
+                    <ul>
+                        <li>Check if ESP32 variant supports BLE (most do)</li>
+                        <li>Verify correct ESP32 board selected in Arduino IDE</li>
+                        <li>Check Serial Monitor for initialization errors</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h4>Commands not working</h4>
+                    <ul>
+                        <li>Verify UUIDs match between web UI and ESP32 code</li>
+                        <li>Check Serial Monitor for command confirmations</li>
+                        <li>Ensure characteristic has WRITE property enabled</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Mobile Device Setup</h2>
+
+            <h3>Enable Web Bluetooth (Chrome/Edge Mobile)</h3>
+            <ol class="step-list">
+                <li>Type <code>chrome://flags</code> in browser address bar</li>
+                <li>Search for "bluetooth"</li>
+                <li>Enable "Experimental Web Platform features"</li>
+                <li>Restart browser</li>
+            </ol>
+
+            <h3>Connect to Local Server</h3>
+            <ol class="step-list">
+                <li>Find your computer's IP address on same WiFi network:
+                    <div class="code-block"># Windows
+ipconfig
+
+# Mac/Linux
+ifconfig
+ip addr</div>
+                </li>
+                <li>Visit <code>http://YOUR_COMPUTER_IP:8000</code> on mobile browser</li>
+                <li>Example: <code>http://192.168.1.100:8000</code></li>
+            </ol>
+
+            <div class="warning-box">
+                <strong>Network Requirements:</strong> Both computer and mobile device must be on the same WiFi network. Allow Python through firewall when prompted.
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Browser Console Debugging</h2>
+
+            <p>Press <strong>F12</strong> or right-click → Inspect to open Developer Tools, then go to Console tab.</p>
+
+            <h3>Good Messages (Everything Working)</h3>
+            <div class="code-block">"Starting BLE connection..."
+"Device selected: ESP32-LED-Controller"
+"Successfully connected to ESP32!"
+"LED configuration sent successfully"</div>
+
+            <h3>Common Error Messages</h3>
+            <div class="code-block">"Web Bluetooth requires HTTPS or localhost"
+"NotFoundError: ESP32 not found"
+"SecurityError: User cancelled the requestDevice() chooser"
+"NetworkError: Connection failed"</div>
+
+            <h3>If You See Errors</h3>
+            <ul>
+                <li><strong>HTTPS Error:</strong> Use local HTTP server, not file:// protocol</li>
+                <li><strong>Device Not Found:</strong> Check ESP32 is advertising (Serial Monitor)</li>
+                <li><strong>Security Error:</strong> User cancelled device selection dialog</li>
+                <li><strong>Network Error:</strong> Check ESP32 power and range</li>
+            </ul>
+        </section>
+    </div>
+
+    <script src="nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - ESP32 LED Grid Controller</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page-container">
+        <section class="hero-section">
+            <h1>ESP32 LED Grid Controller</h1>
+            <p>A wireless LED grid controller using Web Bluetooth API and ESP32. This proof-of-concept system controls 30 addressable LEDs in a 5×6 grid pattern, designed as the foundation for a Moonboard-style home bouldering training system with real-time route visualization.</p>
+        </section>
+
+        <section class="content-section">
+            <h2>Project Overview</h2>
+            <p>This project combines the ESP32's built-in Bluetooth capabilities with modern Web APIs to create a wireless LED controller that works directly from your browser. No mobile app downloads or complex setup required - just open the web page and start controlling LEDs!</p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>🌐 Web Bluetooth</h4>
+                    <p>Connect directly from Chrome/Edge browsers using Web Bluetooth API. No apps needed.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🎨 Interactive Grid</h4>
+                    <p>Click-to-control LED grid with visual feedback and real-time color changes.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🎵 Disco Mode</h4>
+                    <p>Automated light shows with random color patterns changing every 2 seconds.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔧 Test Mode</h4>
+                    <p>Sequential LED testing to verify connections and troubleshoot issues.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔆 Brightness Control</h4>
+                    <p>Adjustable brightness from 5% to 100% with real-time updates.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📱 Mobile Friendly</h4>
+                    <p>Responsive design works on desktop and mobile devices.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Inspiration & Vision</h2>
+
+            <h3>🧗 Moonboard Training System</h3>
+            <p>This project serves as a proof-of-concept for creating a home bouldering training system inspired by the <strong>Moonboard</strong> - a standardized climbing training board used worldwide. The Moonboard features a grid of climbing holds with LED indicators that light up to show specific boulder problems (routes), allowing climbers to train consistently using the same problems regardless of location.</p>
+
+            <h3>🏠 Home Training Vision</h3>
+            <p>The goal is to develop an affordable, DIY version of commercial LED climbing systems for home use. By using readily available components like ESP32 microcontrollers and addressable LED strips, climbers can create their own interactive training boards.</p>
+
+            <h3>📈 Scalable Design</h3>
+            <p>While this 5×6 grid demonstrates the core technology with 30 LEDs, the system can be scaled to match standard training board dimensions:</p>
+            <ul>
+                <li><strong>Moonboard:</strong> 11×18 grid (198 holds)</li>
+                <li><strong>Kilter Board:</strong> 12×12 grid (144 holds)</li>
+                <li><strong>Custom Walls:</strong> Any configuration for home setups</li>
+            </ul>
+            <p>The modular approach allows climbers to start with a small prototype and expand their setup over time as they add more holds to their home wall.</p>
+
+            <h3>🚀 Future Potential</h3>
+            <p>This foundation enables advanced features like:</p>
+            <ul>
+                <li>Route database integration with difficulty ratings</li>
+                <li>Timer and session tracking</li>
+                <li>Progressive training programs</li>
+                <li>Community route sharing</li>
+                <li>Video analysis integration</li>
+                <li>Competition mode with standardized problems</li>
+            </ul>
+        </section>
+
+        <section class="content-section">
+            <h2>Screenshots & Hardware</h2>
+
+            <div class="image-gallery">
+                <div class="image-item">
+                    <img src="screenshots/web-interface.png" alt="Web Interface Screenshot">
+                    <div class="image-caption">Web interface showing the interactive LED grid controller with connection status and color controls</div>
+                </div>
+
+                <div class="image-item">
+                    <img src="screenshots/hardware-front.png" alt="Hardware Front View">
+                    <div class="image-caption">Front view of the 5×6 LED grid setup showing the physical arrangement of 30 WS2811 LEDs</div>
+                </div>
+
+                <div class="image-item">
+                    <img src="screenshots/hardware-back.png" alt="Hardware Back View">
+                    <div class="image-caption">Back view showing ESP32 board connections, wiring to LED strip, and power supply setup</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Technical Specifications</h2>
+
+            <h3>Hardware Requirements</h3>
+            <ul>
+                <li><strong>Microcontroller:</strong> ESP32 development board (any variant)</li>
+                <li><strong>LEDs:</strong> WS2811 addressable LED strip (30 LEDs)</li>
+                <li><strong>Power:</strong> 5V external power supply (~1.8A for full brightness)</li>
+                <li><strong>Connections:</strong> Data pin (GPIO 4), Power, Ground</li>
+            </ul>
+
+            <h3>Software Stack</h3>
+            <ul>
+                <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript (Web Bluetooth API)</li>
+                <li><strong>Backend:</strong> Arduino C++ with ESP32 libraries</li>
+                <li><strong>Communication:</strong> BLE (Bluetooth Low Energy)</li>
+                <li><strong>LED Control:</strong> FastLED library</li>
+                <li><strong>Data Format:</strong> JSON command protocol</li>
+            </ul>
+
+            <h3>Browser Support</h3>
+            <ul>
+                <li><strong>Full Support:</strong> Chrome, Edge (desktop and mobile)</li>
+                <li><strong>Limited Support:</strong> Firefox (requires manual flags)</li>
+                <li><strong>Not Supported:</strong> Safari</li>
+            </ul>
+        </section>
+
+        <section class="content-section">
+            <h2>Usage Examples</h2>
+
+            <h3>Basic LED Control</h3>
+            <p>Click any square in the LED grid to cycle through colors: Off → Red → Green → Blue. Click "Send Configuration" to update the physical LEDs.</p>
+
+            <h3>Test Mode</h3>
+            <p>Use "Test LEDs" to sequentially light up each LED in red, helping you verify connections and identify any faulty LEDs.</p>
+
+            <h3>Disco Mode</h3>
+            <p>Activate "Disco Mode" for an automated light show that randomly selects 5 LEDs and assigns random colors every 2 seconds.</p>
+
+            <h3>Brightness Adjustment</h3>
+            <p>Use the brightness slider to adjust LED intensity from 5% to 100%, perfect for different ambient lighting conditions.</p>
+        </section>
+
+        <section class="content-section">
+            <h2>Applications</h2>
+            <ul>
+                <li><strong>🧗 Bouldering Training:</strong> Route setting and problem visualization for home climbing walls</li>
+                <li><strong>🏋️ Training Routines:</strong> Programming specific boulder problems and technique practice</li>
+                <li><strong>📊 Progress Tracking:</strong> Visual feedback for training sessions and difficulty progression</li>
+                <li><strong>🎯 Route Setting:</strong> Creating and testing new boulder problems with instant LED feedback</li>
+                <li><strong>🏠 Home Gym Integration:</strong> Affordable alternative to commercial LED climbing systems</li>
+                <li><strong>👥 Community Training:</strong> Sharing routes and problems with other climbers</li>
+                <li><strong>🎨 Decorative Lighting:</strong> Ambient room lighting with custom patterns when not training</li>
+                <li><strong>📚 Learning Platform:</strong> Educational tool for web technologies and IoT development</li>
+                <li><strong>🔧 Prototyping:</strong> Testing LED arrangements and control systems for larger installations</li>
+                <li><strong>🎮 Interactive Projects:</strong> Gaming, art installations, and visual feedback systems</li>
+            </ul>
+        </section>
+    </div>
+
+    <script src="nav.js"></script>
+</body>
+</html>
