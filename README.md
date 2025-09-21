@@ -1,30 +1,57 @@
 # ESP32 Web Bluetooth LED Grid Controller
 
-A web application that uses Web Bluetooth API to connect to an ESP32 and control a 30-LED WS2811 addressable LED strip in a 5x6 grid pattern. Features an interactive web interface for setting individual LED colors (Off, Red, Green, Blue) and real-time updates via JSON commands. Works on both desktop and mobile devices.
+A proof-of-concept wireless LED grid controller designed as the foundation for a Moonboard-style home bouldering training system. Uses Web Bluetooth API to connect ESP32 and control 30-LED WS2811 addressable strip in a 5×6 grid pattern. Features multi-page responsive web interface with LED control, test modes, disco patterns, and brightness adjustment. Provides an affordable DIY alternative to commercial climbing training systems.
 
 ## Project Structure
 
 ```
 EspController/
-├── index.html              # Web Bluetooth LED Grid UI
-├── style.css               # Responsive styling with LED grid
+├── index.html              # Main LED controller interface
+├── about.html              # Project overview and Moonboard context
+├── setup.html              # Installation and troubleshooting guide
+├── nav.js                  # Shared navigation component
+├── style.css               # Responsive styling with navigation system
 ├── script.js               # Web Bluetooth API and LED control logic
 ├── README.md               # This file
+├── CLAUDE.md               # Development memory and instructions
+├── screenshots/            # Hardware and interface images
+│   ├── web-interface.png   # Web interface screenshot
+│   ├── hardware-front.png  # LED grid front view
+│   └── hardware-back.png   # ESP32 wiring back view
 └── board_led_grid/
     └── board_led_grid.ino  # ESP32 Arduino code for WS2811 LED control
 ```
 
 ## Features
 
-- **Offline Web UI** - No server required, works completely offline
-- **Device Pairing** - Scan and connect to ESP32 via Web Bluetooth
-- **LED Grid Control** - Interactive 5x6 grid interface for 30 addressable LEDs
-- **Color Selection** - Click-to-cycle through Off, Red, Green, and Blue states
-- **Real-time Updates** - Send LED configurations via JSON commands
-- **Snake Pattern Addressing** - Proper LED indexing for physical strip layout
-- **Responsive Design** - Works on desktop and mobile browsers
-- **Connection Status** - Visual indicators for connection state
+### Core LED Control
+- **Interactive Grid Interface** - Click-to-control 5×6 LED grid with real-time updates
+- **Color Selection** - Cycle through Off, Red, Green, and Blue states
+- **Brightness Control** - Adjustable intensity from 5% to 100% via web slider
+- **Custom LED Mapping** - Configurable addressing pattern for different layouts
+
+### Test & Pattern Modes
+- **Sequential Test Mode** - Automatically test each LED in sequence with 1-second intervals
+- **Disco Mode** - Random 5-LED color patterns changing every 2 seconds
+- **UI Synchronization** - Visual feedback in web interface during automated modes
+- **Manual Configuration** - Send custom LED patterns via JSON commands
+
+### Web Interface
+- **Multi-page Navigation** - Responsive website with About and Setup pages
+- **Mobile-Friendly Design** - Touch-optimized interface with hamburger navigation
+- **Offline Operation** - No server required for core LED control functionality
+- **Real-time Status** - Visual connection indicators and command feedback
+
+### Connectivity
+- **Web Bluetooth API** - Direct browser-to-ESP32 communication
+- **Device Pairing** - Scan and connect to ESP32 without mobile apps
 - **Auto-reconnection** - ESP32 restarts advertising after disconnect
+- **JSON Protocol** - Structured command format for LED and brightness control
+
+### Moonboard Vision
+- **Climbing Training POC** - Foundation for affordable home bouldering systems
+- **Scalable Architecture** - Expandable from 5×6 to full Moonboard dimensions
+- **Cost-Effective Design** - DIY alternative to $3,000+ commercial systems
 
 ## Screenshots
 
@@ -38,6 +65,58 @@ EspController/
 
 ![Hardware Back View](screenshots/hardware-back.png)
 *Back view showing ESP32 connections and wiring to the LED strip*
+
+## Moonboard Training Vision
+
+### What is a Moonboard?
+A Moonboard is a standardized climbing training board used worldwide, featuring a grid of climbing holds with LED indicators that light up to show specific boulder problems (routes). This allows climbers to train consistently using the same problems regardless of location.
+
+### DIY Home Training System
+This project serves as a proof-of-concept for creating an affordable home version of these commercial systems. While commercial LED climbing boards cost $3,000+, this DIY approach uses readily available components:
+
+- **Current Scale**: 5×6 grid (30 LEDs) for concept demonstration
+- **Target Scale**: 11×18 grid (198 holds) matching standard Moonboard dimensions
+- **Alternative Scales**: 12×12 Kilter Board style or custom home wall configurations
+
+### Future Roadmap
+The modular design enables expansion toward full climbing training features:
+- Route database integration with difficulty ratings
+- Timer and session tracking for training programs
+- Progressive training routines and technique practice
+- Community route sharing and standardized problems
+- Competition mode with official boulder problems
+
+## Quick Start
+
+### 1. Choose Your Interface
+- **🏠 Main Controller**: `index.html` - Interactive LED grid control
+- **📖 Project Info**: `about.html` - Moonboard context and vision
+- **🔧 Setup Guide**: `setup.html` - Complete installation instructions
+
+### 2. Local Server Setup
+Web Bluetooth requires HTTPS or localhost:
+```bash
+# Navigate to project directory
+cd /path/to/EspController
+
+# Start Python server
+python -m http.server 8000
+
+# Access at http://localhost:8000
+```
+
+### 3. Hardware Setup
+1. Upload Arduino code to ESP32
+2. Connect WS2811 LED strip to GPIO 4
+3. Use external 5V power supply for LEDs
+4. Detailed wiring guide available in [Setup page](setup.html)
+
+### 4. Connect and Control
+1. Open main interface at `http://localhost:8000`
+2. Click "Connect to ESP32" and select device
+3. Use grid interface for manual control
+4. Try "Test LEDs" for sequential testing
+5. Try "Disco Mode" for pattern demonstration
 
 ## Requirements
 
